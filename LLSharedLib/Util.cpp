@@ -29,4 +29,15 @@ namespace Util {
 		va_end(args);
 	}
 
+	std::string to_hex(const std::vector<uint8_t>& data) {
+		static const char* hex_chars = "0123456789abcdef";
+		std::string s;
+		s.reserve(data.size() * 2);
+		for (uint8_t byte : data) {
+			s.push_back(hex_chars[byte >> 4]);
+			s.push_back(hex_chars[byte & 0x0F]);
+		}
+		return s;
+	}
+
 } // namespace Util

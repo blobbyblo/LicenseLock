@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <string>
 
 namespace Util {
 
@@ -10,5 +11,8 @@ namespace Util {
 
 	// Logging helper function
 	void log(const char* fmt, ...);
+
+	// Converts a byte buffer to a lowercase hex string ("deadbeef...", etc.)
+	std::string to_hex(const std::vector<uint8_t>& data);
 
 };

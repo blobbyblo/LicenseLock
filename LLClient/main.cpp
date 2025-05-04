@@ -1,30 +1,20 @@
 #include "Util.h"
-#include "Protocol.h"
-#include "NetworkClient.h"
-#include "HandshakeClient.h"
+#include "ClientApp.h"
 
-int main() {
+int main()
+{
     const char* host = "127.0.0.1";
     const uint16_t port = 28199;
-    Util::log("LLClient connecting to %s:%u...", host, port);
 
-    NetworkClient net;
-    if (!net.connect(host, port)) {
-        Util::log("ERROR: connect failed");
+    Util::log("LLClient: starting up");
+    ClientApp app(host, port);
+    if (!app.run()) {
+        Util::log("LLClient: run failed");
         return 1;
     }
+    Util::log("LLClient: exiting");
 
-    HandshakeClient hs(net);
-    if (!hs.perform_handshake()) {
-        Util::log("ERROR: handshake failed");
-        return 1;
-    }
-
-    auto key = hs.get_session_key();
-    Util::log("Client session key:");
-    for (auto b : key) Util::log("%02x", b);
-
-    system("pause");
+	system("pause");
 
     return 0;
 }

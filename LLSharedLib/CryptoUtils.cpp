@@ -85,6 +85,75 @@ namespace CryptoUtils {
         return out;
     }
 
-    // AES-GCM stays the same (calls through EVP), so no changes here…
+    // AES-256-GCM encryption
+    bool CryptoUtils::aes_encrypt(const uint8_t* key, size_t key_len,
+        const uint8_t* iv, size_t iv_len,
+        const uint8_t* pt, size_t pt_len,
+        uint8_t* ct,
+        uint8_t* tag)
+    {
+        if (key_len != 32) throw std::runtime_error("AES key must be 32 bytes");
+        EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+        if (!ctx) throw std::runtime_error("EVP_CIPHER_CTX_new failed");
+
+        if (1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr))
+            throw std::runtime_error("EVP_EncryptInit_ex failed");
+
+        if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, (int)iv_len, nullptr))
+            throw std::runtime_error("EVP_CTRL_GCM_SET_IVLEN failed");
+
+        if (1 != EVP_EncryptInit_ex(ctx, nullptr, nullptr, key, iv))
+            throw std::runtime_error("EVP_EncryptInit_ex(key/iv) failed");
+
+        int len = 0;
+        if (1 != EVP_EncryptUpdate(ctx, ct, &len, pt, (int)pt_len))
+            throw std::runtime_error("EVP_EncryptUpdate failed");
+
+        int outl = 0;
+        if (1 != EVP_EncryptFinal_ex(ctx, ct + len, &outl))
+            throw std::runtime_error("EVP_EncryptFinal_ex failed");
+
+        if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, 16, tag))
+            throw std::runtime_error("EVP_CTRL_GCM_GET_TAG failed");
+
+        EVP_CIPHER_CTX_free(ctx);
+        return true;
+    }
+
+    // AES-256-GCM decryption
+    bool CryptoUtils::aes_decrypt(const uint8_t* key, size_t key_len,
+        const uint8_t* iv, size_t iv_len,
+        const uint8_t* ct, size_t ct_len,
+        const uint8_t* tag, size_t tag_len,
+        uint8_t* pt)
+    {
+        if (key_len != 32) throw std::runtime_error("AES key must be 32 bytes");
+        if (tag_len != 16) throw std::runtime_error("GCM tag must be 16 bytes");
+
+        EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+        if (!ctx) throw std::runtime_error("EVP_CIPHER_CTX_new failed");
+
+        if (1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr))
+            throw std::runtime_error("EVP_DecryptInit_ex failed");
+
+        if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, (int)iv_len, nullptr))
+            throw std::runtime_error("EVP_CTRL_GCM_SET_IVLEN failed");
+
+        if (1 != EVP_DecryptInit_ex(ctx, nullptr, nullptr, key, iv))
+            throw std::runtime_error("EVP_DecryptInit_ex(key/iv) failed");
+
+        int len = 0;
+        if (1 != EVP_DecryptUpdate(ctx, pt, &len, ct, (int)ct_len))
+            throw std::runtime_error("EVP_DecryptUpdate failed");
+
+        if (1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, (int)tag_len,
+            (void*)tag))
+            throw std::runtime_error("EVP_CTRL_GCM_SET_TAG failed");
+
+        int outl = 0;
+        int ret = EVP_DecryptFinal_ex(ctx, pt + len, &outl);
+        EVP_CIPHER_CTX_free(ctx);
+        return (ret == 1);
+    }
 
 } // namespace CryptoUtils

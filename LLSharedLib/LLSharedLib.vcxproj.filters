@@ -24,6 +24,12 @@
     <ClInclude Include="include\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\SessionCrypto.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HWID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LLSharedLib.cpp">
@@ -33,6 +39,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SessionCrypto.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HWID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

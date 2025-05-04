@@ -138,11 +138,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ClientApp.cpp" />
     <ClCompile Include="HandshakeClient.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NetworkClient.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ClientApp.h" />
     <ClInclude Include="ClientKeys.h" />
     <ClInclude Include="HandshakeClient.h" />
     <ClInclude Include="NetworkClient.h" />
