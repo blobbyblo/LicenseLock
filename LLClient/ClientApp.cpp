@@ -80,7 +80,7 @@ bool ClientApp::perform_auth()
 {
     // build { "mid":..., "challenge":... }
     json req = {
-        {"mid", HWID::get_machine_id()},
+        {"mid",       HWID::get_machine_id()},
         {"challenge", m_challenge}
     };
     auto pt = req.dump();
@@ -99,7 +99,7 @@ bool ClientApp::perform_auth()
         return false;
     }
 
-    // receive auth response
+    // 1) receive auth response (challenge-OK / FAIL)
     Protocol::FrameType ft;
     std::vector<uint8_t> in_frame, body;
     if (!m_client.receive_message(ft, in_frame)) {
@@ -116,5 +116,23 @@ bool ClientApp::perform_auth()
         Util::log("ClientApp: authentication rejected");
         return false;
     }
+
+    // 2) receive license response (OK / FAIL: no valid license)
+    if (!m_client.receive_message(ft, in_frame)) {
+        Util::log("ClientApp: recv license response failed");
+        return false;
+    }
+    if (!m_crypto->decrypt_frame(in_frame, ft, body)) {
+        Util::log("ClientApp: decrypt license response failed");
+        return false;
+    }
+
+    auto resp2 = json::parse(body);
+    if (resp2["status"] != "OK") {
+        Util::log("ClientApp: license rejected: %s",
+            resp2["status"].get<std::string>().c_str());
+        return false;
+    }
+
     return true;
 }
