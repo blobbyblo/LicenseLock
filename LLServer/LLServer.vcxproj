@@ -139,6 +139,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="NetworkServer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NetworkServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

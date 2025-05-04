@@ -19,10 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\CryptoUtils.h" />
     <ClInclude Include="include\Protocol.h" />
+    <ClInclude Include="include\Util.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CryptoUtils.cpp" />
     <ClCompile Include="LLSharedLib.cpp" />
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
