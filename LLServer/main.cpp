@@ -9,6 +9,8 @@ int main()
     ServerApp app(port);
     if (!app.run()) {
         Util::log("LLServer: run failed");
+
+        system("pause");
         return 1;
     }
     Util::log("LLServer: exiting");

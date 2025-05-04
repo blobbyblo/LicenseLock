@@ -7,6 +7,67 @@
 
 namespace CryptoUtils {
 
+    static EVP_PKEY* load_private_key(const std::string& pem) {
+        BIO* bio = BIO_new_mem_buf(pem.data(), (int)pem.size());
+        EVP_PKEY* pkey = PEM_read_bio_PrivateKey(bio, NULL, NULL, NULL);
+        BIO_free(bio);
+        if (!pkey) throw std::runtime_error("Failed to load private key");
+        return pkey;
+    }
+
+    static EVP_PKEY* load_public_key(const std::string& pem) {
+        BIO* bio = BIO_new_mem_buf(pem.data(), (int)pem.size());
+        EVP_PKEY* pkey = PEM_read_bio_PUBKEY(bio, NULL, NULL, NULL);
+        BIO_free(bio);
+        if (!pkey) throw std::runtime_error("Failed to load public key");
+        return pkey;
+    }
+
+    std::vector<uint8_t> CryptoUtils::rsa_pss_sign(
+        const std::string& priv_key_pem,
+        const uint8_t* data, size_t len)
+    {
+        EVP_PKEY* pkey = load_private_key(priv_key_pem);
+        EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+        if (!EVP_DigestSignInit(ctx, NULL, EVP_sha256(), NULL, pkey))
+            throw std::runtime_error("PSS SignInit failed");
+        EVP_PKEY_CTX* pctx = NULL;
+        EVP_DigestSignInit(ctx, &pctx, EVP_sha256(), NULL, pkey);
+        EVP_PKEY_CTX_set_rsa_padding(pctx, RSA_PKCS1_PSS_PADDING);
+        EVP_PKEY_CTX_set_rsa_pss_saltlen(pctx, -1);
+
+        // determine signature length
+        size_t siglen;
+        EVP_DigestSign(ctx, NULL, &siglen, data, len);
+        std::vector<uint8_t> sig(siglen);
+        if (!EVP_DigestSign(ctx, sig.data(), &siglen, data, len))
+            throw std::runtime_error("PSS Sign failed");
+        sig.resize(siglen);
+
+        EVP_MD_CTX_free(ctx);
+        EVP_PKEY_free(pkey);
+        return sig;
+    }
+
+    bool CryptoUtils::rsa_pss_verify(
+        const std::string& pub_key_pem,
+        const uint8_t* data, size_t len,
+        const uint8_t* sig, size_t sig_len)
+    {
+        EVP_PKEY* pkey = load_public_key(pub_key_pem);
+        EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+        EVP_PKEY_CTX* pctx = NULL;
+        EVP_DigestVerifyInit(ctx, &pctx, EVP_sha256(), NULL, pkey);
+        EVP_PKEY_CTX_set_rsa_padding(pctx, RSA_PKCS1_PSS_PADDING);
+        EVP_PKEY_CTX_set_rsa_pss_saltlen(pctx, -1);
+
+        int rc = EVP_DigestVerify(ctx, sig, sig_len, data, len);
+
+        EVP_MD_CTX_free(ctx);
+        EVP_PKEY_free(pkey);
+        return (rc == 1);
+    }
+
     // Helpers
     static void throwSSLError(const char* where) {
         unsigned long err = ERR_get_error();

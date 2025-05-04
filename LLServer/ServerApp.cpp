@@ -53,11 +53,13 @@ bool ServerApp::serve_auth(intptr_t client_sock)
 {
     // 1) receive challenge request
     Protocol::FrameType ft;
-    std::vector<uint8_t> in_frame, body;
+    std::vector<uint8_t> in_frame;
     if (!m_server.receive_message(client_sock, ft, in_frame)) {
         Util::log("ServerApp: recv challenge request failed");
         return false;
     }
+
+    std::vector<uint8_t> body;
     if (!m_crypto->decrypt_frame(in_frame, ft, body)) {
         Util::log("ServerApp: decrypt challenge request failed");
         return false;
@@ -65,6 +67,14 @@ bool ServerApp::serve_auth(intptr_t client_sock)
 
     auto req = json::parse(body);
     std::string mid = req["mid"].get<std::string>();
+
+    // Replace with your machine's HWID
+    static constexpr char EXPECTED_HWID[] = "7ada8c099269283a6e93dc4357285c340a32d3ed77ba1552ce622f39580fcb9f";
+    if (mid != EXPECTED_HWID) {
+        Util::log("ServerApp: HWID mismatch (got %s, expected %s)",
+            mid.c_str(), EXPECTED_HWID);
+        return false;    // authentication fails immediately
+    }
 
     // 2) issue one-time challenge
     m_challenge = Util::to_hex(Util::generate_random_bytes(16));

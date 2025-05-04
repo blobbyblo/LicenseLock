@@ -14,6 +14,8 @@ namespace Protocol {
 		Data				= 0x02, // Client <-> Server | AES-GCM
 
 		// Payload Type Decision Frames
+		// Currently unused, but reserved for future use
+		// Alternative method is to parse JSON message contents
 		ChallengeRequest	= 0x03, // Client --> Server | Data Frame
 		ChallengeResponse	= 0x04, // Client <-- Server | Data Frame
 		AuthRequest			= 0x05, // Client --> Server | Data Frame

@@ -30,4 +30,13 @@ namespace CryptoUtils {
         const uint8_t* tag, size_t tag_len,
         uint8_t* pt);
 
+    std::vector<uint8_t> rsa_pss_sign(
+        const std::string& priv_key_pem,
+        const uint8_t* data, size_t len);
+
+    bool rsa_pss_verify(
+        const std::string& pub_key_pem,
+        const uint8_t* data, size_t len,
+        const uint8_t* sig, size_t sig_len);
+
 }

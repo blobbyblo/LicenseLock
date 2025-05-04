@@ -68,12 +68,11 @@ bool SessionCrypto::decrypt_frame(const std::vector<uint8_t>& in_frame,
 
 	// 3) extract iv, tag, ct
 	const uint8_t* iv_ptr = in_frame.data() + Protocol::HEADER_SIZE;
-	const uint8_t* tag_ptr = iv_ptr + Protocol::IV_SIZE;
-	const uint8_t* ct_ptr = tag_ptr + Protocol::TAG_SIZE;
-	size_t ct_len = payload_len - (Protocol::IV_SIZE + Protocol::TAG_SIZE);
+	const size_t ct_len = payload_len - (Protocol::IV_SIZE + Protocol::TAG_SIZE);
+	const uint8_t* ct_ptr = iv_ptr + Protocol::IV_SIZE;
+	const uint8_t* tag_ptr = ct_ptr + ct_len;
 
 	out_plaintext.resize(ct_len);
-
 	if (!CryptoUtils::aes_decrypt(
 		m_session_key.data(), m_session_key.size(),
 		iv_ptr, Protocol::IV_SIZE,
