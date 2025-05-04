@@ -138,11 +138,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="HandshakeServer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NetworkServer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HandshakeServer.h" />
     <ClInclude Include="NetworkServer.h" />
+    <ClInclude Include="ServerKeys.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

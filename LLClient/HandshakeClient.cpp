@@ -26,3 +26,8 @@ bool HandshakeClient::perform_handshake()
 	}
 	return true;
 }
+
+const std::vector<uint8_t>& HandshakeClient::get_session_key() const
+{
+	return m_session_key;
+}
